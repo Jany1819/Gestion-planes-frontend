@@ -1,40 +1,54 @@
-import { createBrowserRouter } from 'react-router-dom';
-import HomePage from './pages/HomePage';
-import Login from './pages/Login';
-import DashboardPage from './pages/DashboardPage';
-import Home from './pages/dashboard/Home'; 
-import CrearPlan from './pages/dashboard/CrearPlan';
-import ListarPlanes from './pages/dashboard/ListarPlanes';
-import ModificarPlan from './pages/dashboard/ModificarPlan';
+import { createBrowserRouter, Navigate } from 'react-router-dom';
+import Login from '@/pages/Login';
+import LagoutPage from '@/pages/LagoutPage';
+import CrearPlan from '@/pages/lagout/CrearPlan';
+import PlanEvaluacion from '@/pages/lagout/PlanEvaluacion';
+import PlanAprendizaje from '@/pages/lagout/PlanAprendizaje';
+import ListarPlanes from '@/pages/lagout/ListarPlanes';
+import ModificarPlan from '@/pages/lagout/ModificarPlan';
+import ProtectedRoute from '@/components/ProtectedRoute';
+
 
 const router = createBrowserRouter([
   {
     path: '/',
-    element: <HomePage />,
+    element: <Navigate to="/login" />, 
   },
   {
     path: '/login',
-    element: <Login />,
+    element: <Login />, 
   },
   {
-    path: '/dashboard',
-    element: <DashboardPage />,
+    path: '/lagout',
+    element: (
+      <ProtectedRoute>
+        <LagoutPage /> {/* Protege la ruta del dashboard */}
+      </ProtectedRoute>
+    ),
     children: [
       {
-        path: 'home', 
-        element: <Home />,
+        path: '',
+        element: <Navigate to="listar-planes" />, 
       },
       {
         path: 'crear-plan',
-        element: <CrearPlan />,
+        element: <CrearPlan />, 
+      },
+      {
+        path: 'crear-plan/evaluacion',
+        element: <PlanEvaluacion />, 
+      },
+      {
+        path: 'crear-plan/aprendizaje',
+        element: <PlanAprendizaje />, 
       },
       {
         path: 'listar-planes',
-        element: <ListarPlanes />,
+        element: <ListarPlanes />, 
       },
       {
         path: 'modificar-plan',
-        element: <ModificarPlan />,
+        element: <ModificarPlan />, 
       },
     ],
   },
