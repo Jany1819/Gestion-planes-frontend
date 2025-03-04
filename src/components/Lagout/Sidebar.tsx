@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { FaPlus, FaList, FaEdit, FaSignOutAlt } from 'react-icons/fa';
+import { FaPlus, FaList, FaEdit, FaSignOutAlt , FaBook } from 'react-icons/fa';
 
 // Obtener los datos del docente autenticado
 const obtenerDatosDocente = async () => {
@@ -8,12 +8,13 @@ const obtenerDatosDocente = async () => {
   if (!token) return null;
 
   try {
-    const response = await fetch('http://tu-backend-url/info', { 
+    const response = await fetch(import.meta.env.VITE_API_HOST + '/autenticacion-docente/info', { 
       method: 'GET',
       headers: {
         'Authorization': `Bearer ${token}`,
       },
     });
+    
     if (!response.ok) throw new Error('Error al obtener los datos del docente');
     const data = await response.json();
     return data; // Devuelve los datos del docente
@@ -39,7 +40,7 @@ const Sidebar: React.FC = () => {
   // Manejar el cierre de sesión
   const handleLogout = async () => {
     try {
-      const response = await fetch('http://tu-backend-url/logout', { 
+      const response = await fetch(import.meta.env.VITE_HOST + 'autenticacion-docente/logout', { 
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`,
@@ -72,7 +73,7 @@ const Sidebar: React.FC = () => {
       <nav>
         <ul className="space-y-4">
 
-          {/* Página de Listar Planes */}
+          {/* Listar Planes */}
           <li>
             <Link
               to="/lagout/listar-planes"
@@ -83,7 +84,7 @@ const Sidebar: React.FC = () => {
             </Link>
           </li>
 
-          {/* Página de Crear Plan */}
+          {/* Crear Plan */}
           <li>
             <Link
               to="/lagout/crear-plan"
@@ -94,18 +95,27 @@ const Sidebar: React.FC = () => {
             </Link>
           </li>
 
-          {/* Página de Modificar Plan */}
+          {/* Modificar Plan */}
           <li>
             <Link
               to="/lagout/modificar-plan"
-              className="flex items-center p-2 rounded-md hover:bg-[#2c2c2c] transition-colors"
-            >
+              className="flex items-center p-2 rounded-md hover:bg-[#2c2c2c] transition-colors" >
               <FaEdit className="mr-2" />
               <span>Modificar Plan</span>
             </Link>
           </li>
+          
+          {/* Unidad Curricular */}
+          <li>
+             <Link
+                to="/lagout/unidad-curricular"
+                className="flex items-center p-2 rounded-md hover:bg-[#2c2c2c] transition-colors" >
+                <FaBook className="mr-2" />
+                <span>Unidad Curricular</span>
+              </Link>
+           </li>
 
-          {/* Botón para cerrar sesión */}
+          {/* Cerrar sesión */}
           <li>
             <button
               onClick={handleLogout}

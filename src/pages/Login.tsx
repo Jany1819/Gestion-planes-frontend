@@ -5,36 +5,28 @@ import { useNavigate } from 'react-router-dom';
 
 const Login: React.FC = () => {
   const [cedula, setCedula] = useState(''); 
-  const [error, setError] = useState(''); 
   const navigate = useNavigate(); 
 
   // Envío del formulario
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault(); 
 
-    try {
-      
-      const response = await fetch(import.meta.env.VITE_API_HOST + '/autenticacion-docente/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ cedula }), 
-      });
+    
+    const response = await fetch(import.meta.env.VITE_API_HOST + '/autenticacion-docente/login', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ cedula }), 
+    });
 
-      
-      if (!response.ok) {
-        throw new Error('Error en la autenticación');
-      }
-
-      
+    
+    if (response.ok) {
       const data = await response.json();
       localStorage.setItem('token', data.token); 
-      navigate('/dashboard/listar-planes'); 
-    } catch (err) {
-      setError('Error al iniciar sesión. Verifica tu cédula.'); 
-      console.error(err); 
+      navigate('/lagout/listar-planes'); 
     }
+    
   };
 
   return (
@@ -50,7 +42,7 @@ const Login: React.FC = () => {
         </div>
       </div>
 
-      {/* Formulario login */}
+      {/* Formulario de login */}
       <div className="flex-grow flex items-center justify-center">
         <form
           onSubmit={handleSubmit}
@@ -58,9 +50,7 @@ const Login: React.FC = () => {
           style={{ boxShadow: '0 0 20px 5px #050a30' }}
         >
           <h2 className="text-white text-2xl font-bold mb-6 text-center">Inicia Sesión</h2>
-          {error && <p className="text-red-500 mb-4 text-center">{error}</p>}
           <div className="mb-6">
-            
             <Input
               type="text"
               placeholder="V-16708924"

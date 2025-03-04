@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate} from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/button';
 import { FaTrash, FaPlus } from 'react-icons/fa';
@@ -18,20 +18,22 @@ const PlanAprendizaje: React.FC = () => {
     const navigate = useNavigate();
 
     // Campos principales
-    const [grupo, setGrupo] = useState('');
+    const [codigoGrupo, setCodigoGrupo] = useState('');
+    const [docente, setDocente] = useState('');
+    const [unidadCurricular, setUnidadCurricular] = useState('');
     const [nucleo, setNucleo] = useState('');
     const [turno, setTurno] = useState('');
     const [pnf, setPnf] = useState('');
     const [fechaCreacion, setFechaCreacion] = useState('');
+    const [fechaModificacion, setFechaModificacion] = useState('');
 
     // Campos dinámicos (objetivos)
     const [objetivos, setObjetivos] = useState<Objetivo[]>([]);
 
-    
+
     const [errorCampos, setErrorCampos] = useState('');
 
-    
-    const baseURL = 'http://localhost:8000/api';
+
 
     // Agregar un nuevo objetivo
     const agregarObjetivo = () => {
@@ -50,7 +52,14 @@ const PlanAprendizaje: React.FC = () => {
     // Validar los campos
     const validarCampos = () => {
         const camposPrincipalesValidos =
-            grupo && nucleo && turno && pnf && fechaCreacion;
+            codigoGrupo &&
+            docente &&
+            unidadCurricular &&
+            nucleo &&
+            turno &&
+            pnf &&
+            fechaCreacion &&
+            fechaModificacion;
 
         const objetivosValidos = objetivos.every(
             (objetivo) =>
@@ -58,8 +67,8 @@ const PlanAprendizaje: React.FC = () => {
                 objetivo.estrategiasDidacticas &&
                 objetivo.contenido &&
                 objetivo.criterioLogro &&
-                objetivo.duracionHoras >= 10 &&
-                objetivo.duracionHoras <= 200
+                objetivo.duracionHoras >= 2 &&
+                objetivo.duracionHoras <= 9
         );
 
         return camposPrincipalesValidos && objetivosValidos;
@@ -69,12 +78,15 @@ const PlanAprendizaje: React.FC = () => {
     const guardarPlanAprendizaje = async () => {
         try {
             // Guardar el plan de aprendizaje
-            const responsePlan = await axios.post(`${baseURL}/planes-aprendizaje/`, {
-                grupo,
+            const responsePlan = await axios.post(import.meta.env.VITE_API_HOST + `/gestion-planes/planes-aprendizaje/`, {
+                codigo_grupo: codigoGrupo,
+                docente,
+                unidad_curricular: unidadCurricular,
                 nucleo,
                 turno,
                 pnf,
                 fecha_creacion: fechaCreacion,
+                fecha_modificacion: fechaModificacion,
             });
 
             const planId = responsePlan.data.id;
@@ -82,12 +94,15 @@ const PlanAprendizaje: React.FC = () => {
             // Guardar los objetivos asociados al plan
             await Promise.all(
                 objetivos.map((objetivo) =>
-                    axios.post(`${baseURL}/planes-aprendizaje/${planId}/objetivos/`, objetivo)
+                    axios.post(import.meta.env.VITE_API_HOST + `/gestion-planes/objetivos-aprendizaje/`, {
+                        ...objetivo,
+                        plan_aprendizaje: planId, // Asocia el objetivo con el planId
+                    })
                 )
             );
 
-            
-            navigate('/dashboard/crear-plan');
+            // Redirigir a la sección "Crear Plan"
+            navigate('/lagout/crear-plan');
         } catch (error) {
             console.error('Error al guardar el plan de aprendizaje:', error);
             setErrorCampos('Hubo un error al guardar el plan. Inténtalo de nuevo.');
@@ -107,7 +122,7 @@ const PlanAprendizaje: React.FC = () => {
         }
     };
 
-    
+    // Verifica si un campo está vacío
     const campoVacio = (valor: string) => {
         return valor.trim() === '';
     };
@@ -118,13 +133,44 @@ const PlanAprendizaje: React.FC = () => {
 
             {/* Campos principales */}
             <div className="space-y-4">
+
+                {/* Código de Grupo */}
+                <label className="block text-sm font-medium text-[#ececec] mb-1">
+                    Código
+                </label>
                 <Input
                     type="text"
-                    value={grupo}
-                    onChange={(e) => setGrupo(e.target.value)}
-                    placeholder="Grupo"
+                    value={codigoGrupo}
+                    onChange={(e) => setCodigoGrupo(e.target.value)}
+                    placeholder="Código de Grupo"
                     required
-                    className={campoVacio(grupo) && errorCampos ? 'border-red-500' : ''}
+                    className={campoVacio(codigoGrupo) && errorCampos ? 'border-red-500' : ''}
+                />
+
+                {/* Docente */}
+                <label className="block text-sm font-medium text-[#ececec] mb-1">
+                    Docente
+                </label>
+                <Input
+                    type="text"
+                    value={docente}
+                    onChange={(e) => setDocente(e.target.value)}
+                    placeholder="Docente"
+                    required
+                    className={campoVacio(docente) && errorCampos ? 'border-red-500' : ''}
+                />
+
+                {/* Unidad Curricular */}
+                <label className="block text-sm font-medium text-[#ececec] mb-1">
+                    Unidad Curricular
+                </label>
+                <Input
+                    type="text"
+                    value={unidadCurricular}
+                    onChange={(e) => setUnidadCurricular(e.target.value)}
+                    placeholder="Unidad Curricular"
+                    required
+                    className={campoVacio(unidadCurricular) && errorCampos ? 'border-red-500' : ''}
                 />
 
                 {/* Núcleo */}
@@ -141,10 +187,10 @@ const PlanAprendizaje: React.FC = () => {
                         required
                     >
                         <option value="">Seleccione un núcleo</option>
-                        <option value="La Floresta">La Floresta</option>
-                        <option value="La Urbina">La Urbina</option>
-                        <option value="Altagracia">Altagracia</option>
-                        <option value="Carayaca">Carayaca</option>
+                        <option value="FLO">La Floresta</option>
+                        <option value="URB">La Urbina</option>
+                        <option value="ALT">Altagracia</option>
+                        <option value="LGA">La Guaira</option>
                     </select>
                 </div>
 
@@ -162,11 +208,16 @@ const PlanAprendizaje: React.FC = () => {
                         required
                     >
                         <option value="">Seleccione un turno</option>
-                        <option value="Mañana">Mañana</option>
-                        <option value="Vespertino">Vespertino</option>
-                        <option value="Nocturno">Nocturno</option>
+                        <option value="M">Mañana</option>
+                        <option value="V">Vespertino</option>
+                        <option value="N">Nocturno</option>
                     </select>
                 </div>
+
+                {/* PNF */}
+                <label className="block text-sm font-medium text-[#ececec] mb-1">
+                    PNF 
+                </label>
                 <Input
                     type="text"
                     value={pnf}
@@ -189,6 +240,20 @@ const PlanAprendizaje: React.FC = () => {
                         className={campoVacio(fechaCreacion) && errorCampos ? 'border-red-500' : ''}
                     />
                 </div>
+
+                {/* Fecha de Modificación */}
+                <div>
+                    <label className="block text-sm font-medium text-[#ececec] mb-1">
+                        Fecha de Modificación
+                    </label>
+                    <Input
+                        type="date"
+                        value={fechaModificacion}
+                        onChange={(e) => setFechaModificacion(e.target.value)}
+                        required
+                        className={campoVacio(fechaModificacion) && errorCampos ? 'border-red-500' : ''}
+                    />
+                </div>
             </div>
 
             {/* Campos dinámicos (objetivos) */}
@@ -209,6 +274,10 @@ const PlanAprendizaje: React.FC = () => {
                             )}
                         </div>
                         <div className="space-y-4">
+                            {/* Título del Objetivo */}
+                            <label className="block text-sm font-medium text-[#ececec] mb-1">
+                                Título del Objetivo
+                            </label>
                             <Input
                                 type="text"
                                 value={objetivo.titulo}
@@ -221,6 +290,7 @@ const PlanAprendizaje: React.FC = () => {
                                 required
                                 className={campoVacio(objetivo.titulo) && errorCampos ? 'border-red-500' : ''}
                             />
+
                             {/* Estrategias Didácticas */}
                             <div>
                                 <label className="block text-sm font-medium text-[#ececec] mb-1">
@@ -239,22 +309,22 @@ const PlanAprendizaje: React.FC = () => {
                                     required
                                 >
                                     <option value="">Seleccione una estrategia</option>
-                                    <option value="Clase magistral">Clase magistral</option>
-                                    <option value="Trabajo en grupo">Trabajo en grupo</option>
-                                    <option value="Debate">Debate</option>
-                                    <option value="Estudio de caso">Estudio de caso</option>
-                                    <option value="Aprendizaje basado en problemas">Aprendizaje basado en problemas</option>
-                                    <option value="Proyecto">Proyecto</option>
-                                    <option value="Taller">Taller</option>
-                                    <option value="Laboratorio">Laboratorio</option>
-                                    <option value="Exposición">Exposición</option>
-                                    <option value="Seminario">Seminario</option>
-                                    <option value="Tutoría individual">Tutoría individual</option>
-                                    <option value="Tutoría colectiva">Tutoría colectiva</option>
-                                    <option value="Visita guiada">Visita guiada</option>
-                                    <option value="Práctica de campo">Práctica de campo</option>
-                                    <option value="Evaluación">Evaluación</option>
-                                    <option value="Otras">Otras</option>
+                                    <option value="CL">Clase magistral</option>
+                                    <option value="TR">Trabajo en grupo</option>
+                                    <option value="DE">Debate</option>
+                                    <option value="EP">Estudio de caso</option>
+                                    <option value="AP">Aprendizaje basado en problemas</option>
+                                    <option value="PY">Proyecto</option>
+                                    <option value="TA">Taller</option>
+                                    <option value="LB">Laboratorio</option>
+                                    <option value="EX">Exposición</option>
+                                    <option value="SE">Seminario</option>
+                                    <option value="TI">Tutoría individual</option>
+                                    <option value="TC">Tutoría colectiva</option>
+                                    <option value="VA">Visita guiada</option>
+                                    <option value="PC">Práctica de campo</option>
+                                    <option value="EV">Evaluación</option>
+                                    <option value="OT">Otras</option>
                                 </select>
                             </div>
 
@@ -299,7 +369,7 @@ const PlanAprendizaje: React.FC = () => {
                                     rows={4}
                                 />
                             </div>
-                            
+
                             {/* Duración (horas) */}
                             <div>
                                 <label className="block text-sm font-medium text-[#ececec] mb-1">
@@ -315,14 +385,15 @@ const PlanAprendizaje: React.FC = () => {
                                     }}
                                     placeholder="Duración (horas)"
                                     required
-                                    className={(objetivo.duracionHoras < 10 || objetivo.duracionHoras > 200) && errorCampos ? 'border-red-500' : ''}
-                                    min={10}
-                                    max={200}
+                                    className={(objetivo.duracionHoras < 2 || objetivo.duracionHoras > 9) && errorCampos ? 'border-red-500' : ''}
+                                    min={2}
+                                    max={9}
                                 />
                             </div>
                         </div>
                     </div>
                 ))}
+
                 <button
                     onClick={agregarObjetivo}
                     className="flex items-center justify-center w-full p-2 bg-[#050a30] text-[#ececec] rounded-lg hover:bg-[#ececec] hover:text-[#050a30] transition-all duration-300"
@@ -340,7 +411,7 @@ const PlanAprendizaje: React.FC = () => {
             {/* Botones */}
             <div className="flex justify-end gap-4 mt-6">
                 <Button
-                    onClick={() => navigate('/dashboard/crear-plan')}
+                    onClick={() => navigate('/lagout/crear-plan')}
                     className="bg-[#050a30] text-[#ececec] hover:bg-[#ececec] hover:text-[#050a30]"
                 >
                     Salir del formulario

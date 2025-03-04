@@ -6,6 +6,10 @@ import PlanEvaluacion from '@/pages/lagout/PlanEvaluacion';
 import PlanAprendizaje from '@/pages/lagout/PlanAprendizaje';
 import ListarPlanes from '@/pages/lagout/ListarPlanes';
 import ModificarPlan from '@/pages/lagout/ModificarPlan';
+import UnidadCurricular from '@/pages/lagout/UnidadCurricular';
+import CrearUnidadCurricular from '@/pages/lagout/CrearUnidadCurricular';
+import ListarUnidadCurricular from '@/pages/lagout/ListarUnidadCurricular';
+import ModificarUnidadCurricular from './pages/lagout/ModificarUnidadCurricular';
 import ProtectedRoute from '@/components/ProtectedRoute';
 
 
@@ -22,7 +26,7 @@ const router = createBrowserRouter([
     path: '/lagout',
     element: (
       <ProtectedRoute>
-        <LagoutPage /> {/* Protege la ruta del dashboard */}
+        <LagoutPage /> {/* Protege la ruta del lagout*/}
       </ProtectedRoute>
     ),
     children: [
@@ -49,6 +53,22 @@ const router = createBrowserRouter([
       {
         path: 'modificar-plan',
         element: <ModificarPlan />, 
+      },
+      {
+        path: 'unidad-curricular',
+        element: <UnidadCurricular />,
+      },
+      {
+        path: 'crear-unidad',
+        element: <CrearUnidadCurricular />,
+      },
+      {
+        path: 'listar-unidades',
+        element: <ListarUnidadCurricular />,
+      },
+      {
+        path: 'modificar-unidad',
+        element: <ModificarUnidadCurricular />,
       },
     ],
   },
